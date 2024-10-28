@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CKEditor 5 Sample</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='ckeditor.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.2.0/ckeditor5.css">
+</head>
+<body>
+    <div class="split-container">
+        <div class="viewer">
+            <!-- Hamburger Menu -->
+            <div class="spinner" id="loading-spinner" style="display: none;">
+                <div class="spinner-circle"></div>
+            </div>
+            <div class="hamburger-menu" onclick="toggleSidebar()">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+
+            <!-- Sidebar Content -->
+            <div class="sidebar" id="sidebar">
+                <!-- Heading -->
+                <h2>Configurations</h2>
+
+                <!-- Upload Section -->
+                <div class="upload-section">
+                    <label>Upload File:</label>
+                    <input type="file" id="file-upload" />
+                    <button type="button" id="upload-button">Upload</button>
+                    <!-- <input type="checkbox" id="upload-view-only" />
+                    <label>Viewer Only</label>
+                    <span title="Check this box to upload the document only to update the viewer on the left, keeping the editor unchanged.">&#9432;</span> -->
+                </div>
+
+                <hr /> <!-- Line separator -->
+
+                <!-- OCR Section -->
+                <div class="ocr-section">
+                    <label>OCR:</label>
+                    
+                    <!-- Enable OCR Checkbox -->
+                    <div>
+                        <input type="checkbox" id="ocr-checkbox" /> 
+                        <label>Enable OCR</label>
+                        <span title="Check this box to perform OCR">&#9432;</span>
+                    </div>
+                    <br>
+                    <!-- Language Selection -->
+                    <div class="language-selection">
+                        <label>Select Languages:</label>
+                        <div class="language-options">
+                            <label><input type="checkbox" id="lang-eng" checked /> English</label>
+                            <label><input type="checkbox" id="lang-guj" /> Gujarati</label>
+                            <label><input type="checkbox" id="lang-san" /> Sanskrit</label>
+                            <label><input type="checkbox" id="lang-hin" /> Hindi</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr /> <!-- Line separator -->
+
+                <!-- Author's Name Section -->
+                <div class="author-section">
+                    <label>Author's Name:</label>
+                    <input type="text" id="author-name" placeholder="Enter author's name" />
+                    <br>
+                    <br>
+                    <label>PDF Export:</label>
+                    <div>
+                        <input type="radio" id="portrait" name="pdf-view" value="portrait" checked />
+                        <label for="portrait">Portrait</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="landscape" name="pdf-view" value="landscape" />
+                        <label for="landscape">Landscape</label>
+                    </div>
+                </div>
+
+                <hr /> <!-- Line separator -->
+                
+            </div>
+        </div>
+
+        <div class="editor">
+            <div class="editor-buttons">
+                <button type="button" id="clear-editor-top-button" onclick="clearEditorContent()">Clear Editor</button>
+                <div class="dropdown">
+                    <button id="exportButton">Export PDF</button>
+                    <div class="dropdown-content">
+                        <button onclick="exportToPDF()">Export Full PDF</button>
+                        <button onclick="exportfilteredPDF()">Export Filtered PDF</button>
+                    </div>
+                </div>
+            </div>            
+            <div class="main-container">
+                <div
+                    class="editor-container editor-container_document-editor editor-container_include-minimap editor-container_include-style"
+                    id="editor-container"
+                >
+                    <div class="editor-container__menu-bar" id="editor-menu-bar"></div>
+                    <input type="text" id="table-search" placeholder="Click column to filter" />    
+                    <div class="editor-container__toolbar" id="editor-toolbar"></div>
+                    <div class="editor-container__minimap-wrapper">
+                        <div class="editor-container__editor-wrapper">
+                            <div class="editor-container__editor"><div id="editor"></div></div>
+                        </div>
+                        <div class="editor-container__sidebar editor-container__sidebar_minimap"><div id="editor-minimap"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.2.0/ckeditor5.js",
+            "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.2.0/"
+        }
+    }
+    </script>
+    <script type="module" src="{{ url_for('static', filename='ckeditor.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</html>

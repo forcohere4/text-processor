@@ -3,18 +3,43 @@ const puppeteer = require('puppeteer');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
+const cors = require('cors');
 
-app.use(bodyParser.text({ type: 'text/html' })); // Accept HTML as plain text
+app.use(cors());
+app.use(bodyParser.text({ type: 'text/html', limit: '50mb' })); // Accept HTML as plain text
 
-// POST route to receive HTML and generate PDF
+// Function to get timestamp in IST format (dd/mm/yyyy HH:mm:ss.sss)
+function getISTTimestamp() {
+    const now = new Date();
+    const istOffset = 330; // IST offset in minutes (UTC +5:30)
+    const localTime = new Date(now.getTime() + istOffset * 60 * 1000);
+
+    const day = localTime.getUTCDate().toString().padStart(2, '0');
+    const month = (localTime.getUTCMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
+    const year = localTime.getUTCFullYear();
+
+    const hours = localTime.getUTCHours().toString().padStart(2, '0');
+    const minutes = localTime.getUTCMinutes().toString().padStart(2, '0');
+    const seconds = localTime.getUTCSeconds().toString().padStart(2, '0');
+    const milliseconds = localTime.getUTCMilliseconds().toString().padStart(3, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
+
+// POST route to receive HTML and generate PDF with optional orientation and footer details
 app.post('/generate-pdf', async (req, res) => {
     const htmlContent = req.body;
+    const orientation = req.query.orientation || 'portrait'; // Default to portrait if not specified
+    const author = req.query.author || ''; // Accept author as a query parameter
 
     try {
         const browser = await puppeteer.launch({
+            headless: "new",
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
         const page = await browser.newPage();
+
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
         // Apply inline styles to markers directly
@@ -27,7 +52,7 @@ app.post('/generate-pdf', async (req, res) => {
                 el.style.color = 'red';
                 el.style.backgroundColor = 'transparent';  // Make the background transparent
             });
-            
+
             document.querySelectorAll('.pen-green').forEach(el => {
                 el.style.color = 'green';
                 el.style.backgroundColor = 'transparent';  // Make the background transparent
@@ -37,16 +62,21 @@ app.post('/generate-pdf', async (req, res) => {
         // Add custom CSS for text colors and table styling without affecting existing backgrounds
         await page.addStyleTag({
             content: `
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid black; padding: 8px; }
-                
+                table { border-collapse: collapse; max-width: 90%; }
+                th, td { 
+                    border: 1px solid black; 
+                    padding: 2px;
+                    word-wrap: break-word;     
+                    word-break: break-word;    
+                    white-space: normal;       
+                }
+                th { 
+                    background-color: #f2f2f2; /* Light gray background for table header */
+                }
                 /* Hide editor-specific elements to remove artifacts */
                 .ck-widget__selection-handle,
                 .ck-widget__type-around,
                 .ck-icon__selected-indicator,
-                .ck-table-column-resizer {
-                    display: none !important;
-                }
             `,
         });
 
@@ -55,8 +85,26 @@ app.post('/generate-pdf', async (req, res) => {
             document.querySelectorAll('.ck-widget__selection-handle, .ck-widget__type-around, .ck-icon__selected-indicator, .ck-table-column-resizer').forEach(el => el.remove());
         });
 
-        // Generate PDF with background colors enabled
-        const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+        // Get current timestamp in IST format
+        const timestamp = getISTTimestamp();
+
+        // Generate PDF with the specified orientation and footer information
+        const pdfBuffer = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: { top: '20mm', bottom: '20mm', left: '10mm', right: '10mm' },
+            landscape: orientation === 'landscape', // Set landscape to true if orientation is landscape
+            displayHeaderFooter: true,
+            footerTemplate: `
+                <div style="font-size:10px; width:100%; padding:0 10mm; position:relative;">
+                    <span style="float:left;">${timestamp}</span>
+                    <span style="float:right;">${author ? author : ''}</span>
+                    <span style="position:absolute; left:50%; transform:translateX(-50%);">Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
+                </div>
+            `,
+            headerTemplate: '<div></div>', // Empty header
+        });
+
         await browser.close();
 
         // Set headers and send PDF as response
