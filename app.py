@@ -9,6 +9,9 @@ from docx import Document
 import requests
 
 app = Flask(__name__)
+
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
+
 app.config['UPLOAD_FOLDER'] = "uploads"
 app.config['OUTPUT_FOLDER'] = "outputs"
 

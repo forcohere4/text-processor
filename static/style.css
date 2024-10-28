@@ -311,13 +311,12 @@ html, body {
     align-items: center;
     justify-content: center;
     z-index: 10; /* Ensures it appears above other content */
-    background-color: rgba(0, 0, 0, 0.5); /* Optional overlay */
     border-radius: 50%;
 }
 
 .spinner-circle {
-    border: 4px solid rgba(255, 255, 255, 0.3); /* Lighter border width */
-    border-top: 4px solid white; /* Top border to create spinner effect */
+    border: 4px solid rgba(181, 169, 169, 0.3); /* Lighter border width */
+    border-top: 4px solid rgb(0, 0, 0); /* Top border to create spinner effect */
     border-radius: 50%;
     width: 40px; /* Adjusted width */
     height: 40px; /* Adjusted height */
