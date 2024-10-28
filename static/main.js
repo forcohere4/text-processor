@@ -143,7 +143,7 @@ async function exportToPDF() {
 
     try {
         // Send a POST request to the Node server
-        const response = await fetch("http://localhost:3000/generate-pdf?orientation=" + orientation + "&author=" + encodeURIComponent(authorName), {
+        const response = await fetch("/generate-pdf?orientation=" + orientation + "&author=" + encodeURIComponent(authorName), {
             method: "POST",
             headers: {
                 "Content-Type": "text/html"
@@ -190,7 +190,7 @@ async function exportfilteredPDF() {
 
     try {
         // Send a POST request to the Node server
-        const response = await fetch("http://localhost:3000/generate-pdf?orientation=" + orientation + "&author=" + encodeURIComponent(authorName), {
+        const response = await fetch("/generate-pdf?orientation=" + orientation + "&author=" + encodeURIComponent(authorName), {
             method: "POST",
             headers: {
                 "Content-Type": "text/html"

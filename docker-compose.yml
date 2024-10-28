@@ -1,21 +1,27 @@
-version: '3.8'
-
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"  # Expose only port 80 externally
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf  # Bind NGINX config file
+    depends_on:
+      - python-server
+      - node-server
+    networks:
+      - app-network
+
   python-server:
     build:
-      context: ./
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
+      context: ./  # Path to your Python Flask application
+      dockerfile: Dockerfile  # Dockerfile for your Flask app
     networks:
       - app-network
 
   node-server:
     build:
-      context: ./pdf-converter
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+      context: ./pdf-converter  # Path to your Node.js PDF converter
+      dockerfile: Dockerfile  # Dockerfile for your Node.js app
     networks:
       - app-network
 
