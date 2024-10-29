@@ -62,7 +62,7 @@ app.post('/generate-pdf', async (req, res) => {
         // Add custom CSS for text colors and table styling without affecting existing backgrounds
         await page.addStyleTag({
             content: `
-                table { border-collapse: collapse; max-width: 90%; }
+                table { border-collapse: collapse; max-width: 95%; }
                 th, td { 
                     border: 1px solid black; 
                     padding: 2px;
