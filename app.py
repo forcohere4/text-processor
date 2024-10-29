@@ -116,13 +116,8 @@ def upload():
             file_path
         ]
         subprocess.run(convert_command, check=True)
-    except subprocess.CalledProcessError:
-        # Fallback to Pandoc if LibreOffice fails
-        try:
-            convert_command = ['pandoc', file_path, '-o', output_html]
-            subprocess.run(convert_command, check=True)
-        except Exception as e:
-            return jsonify({"error": f"Error converting document to HTML: {str(e)}"}), 500
+    except subprocess.CalledProcessError as e:
+        return jsonify({"error": f"Error converting document to HTML: {str(e)}"}), 500
 
     # Return the HTML URL for display in the viewer
     return jsonify({"html_url": f"/outputs/{filename.rsplit('.', 1)[0]}.html"})
