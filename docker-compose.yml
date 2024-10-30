@@ -1,10 +1,9 @@
 services:
   nginx:
-    image: nginx:latest
+    build:
+      context: ./nginx  # Path to your custom NGINX Dockerfile and nginx.conf
     ports:
       - "80:80"  # Expose only port 80 externally
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf  # Bind NGINX config file
     depends_on:
       - python-server
       - node-server
