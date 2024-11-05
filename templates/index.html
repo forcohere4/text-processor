@@ -72,13 +72,13 @@
                     <br>
                     <label>PDF Export:</label>
                     <div>
-                        <input type="radio" id="portrait" name="pdf-view" value="portrait" checked />
+                        <input type="radio" id="portrait" name="pdf-view" value="portrait" />
                         <label for="portrait">Portrait</label>
                     </div>
                     <div>
-                        <input type="radio" id="landscape" name="pdf-view" value="landscape" />
+                        <input type="radio" id="landscape" name="pdf-view" value="landscape" checked />
                         <label for="landscape">Landscape</label>
-                    </div>
+                    </div>                    
                 </div>
 
                 <hr /> <!-- Line separator -->
@@ -88,6 +88,7 @@
 
         <div class="editor">
             <div class="editor-buttons">
+                <button type="button" id="sort-tables" onclick="sortTables()">Sort Table</button>
                 <button type="button" id="clear-editor-top-button" onclick="clearEditorContent()">Clear Editor</button>
                 <div class="dropdown">
                     <button id="exportButton">Export PDF</button>

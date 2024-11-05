@@ -483,6 +483,41 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
         });
     }
 
+    // Function to sort all tables in #editor
+	function sortTables() {
+		const tables = document.querySelectorAll('#editor table');
+	
+		tables.forEach((table) => {
+			const rows = Array.from(table.querySelectorAll('tbody tr'));
+	
+			rows.sort((a, b) => {
+				const cellsA = a.cells;
+				const cellsB = b.cells;
+	
+				for (let i = 1; i < cellsA.length; i++) {
+					const valueA = cellsA[i].textContent.trim();
+					const valueB = cellsB[i].textContent.trim();
+	
+					if (valueA > valueB) return 1;
+					if (valueA < valueB) return -1;
+				}
+				return 0;
+			});
+	
+			const tbody = table.querySelector('tbody');
+			rows.forEach(row => tbody.appendChild(row));
+		});
+	
+		// Update CKEditor content to reflect the sorted tables
+		const updatedContent = document.querySelector('#editor').innerHTML;
+		window.editorInstance.setData(updatedContent);
+	
+		// Save the updated content to local storage
+		localStorage.setItem('editorContent', updatedContent);
+	}
+	
+	window.sortTables = sortTables;
+	
     return editor;
 }).catch(error => {
     console.error(error);
