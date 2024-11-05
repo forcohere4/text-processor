@@ -21,9 +21,8 @@ function getISTTimestamp() {
     const hours = localTime.getUTCHours().toString().padStart(2, '0');
     const minutes = localTime.getUTCMinutes().toString().padStart(2, '0');
     const seconds = localTime.getUTCSeconds().toString().padStart(2, '0');
-    const milliseconds = localTime.getUTCMilliseconds().toString().padStart(3, '0');
 
-    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
 
@@ -62,7 +61,7 @@ app.post('/generate-pdf', async (req, res) => {
         // Add custom CSS for text colors and table styling without affecting existing backgrounds
         await page.addStyleTag({
             content: `
-                table { border-collapse: collapse; max-width: 95%; }
+                table { border-collapse: collapse; max-width: 100%; }
                 th, td { 
                     border: 1px solid black; 
                     padding: 2px;
@@ -71,8 +70,18 @@ app.post('/generate-pdf', async (req, res) => {
                     white-space: normal;       
                 }
                 th { 
+                    padding: 0.5px;
                     background-color: #f2f2f2; /* Light gray background for table header */
                 }
+
+                /* Specific column widths for tables with exactly 6 columns */
+                table th:nth-child(1), table td:nth-child(1) { width: 5%; }
+                table th:nth-child(2), table td:nth-child(2) { width: 5%; }
+                table th:nth-child(3), table td:nth-child(3) { width: 23%; }
+                table th:nth-child(4), table td:nth-child(4) { width: 47%; }
+                table th:nth-child(5), table td:nth-child(5) { width: 10%; }
+                table th:nth-child(6), table td:nth-child(6) { width: 10%; }
+
                 /* Hide editor-specific elements to remove artifacts */
                 .ck-widget__selection-handle,
                 .ck-widget__type-around,
@@ -92,7 +101,7 @@ app.post('/generate-pdf', async (req, res) => {
         const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
-            margin: { top: '20mm', bottom: '20mm', left: '10mm', right: '10mm' },
+            margin: { top: '10mm', bottom: '12mm', left: '0mm', right: '0mm' },
             landscape: orientation === 'landscape', // Set landscape to true if orientation is landscape
             displayHeaderFooter: true,
             footerTemplate: `
