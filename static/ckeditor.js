@@ -483,13 +483,13 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
         });
     }
 
-    // Function to sort all tables in #editor
 	function sortTables() {
 		const tables = document.querySelectorAll('#editor table');
 	
 		tables.forEach((table) => {
 			const rows = Array.from(table.querySelectorAll('tbody tr'));
 	
+			// Sort rows based on cell content
 			rows.sort((a, b) => {
 				const cellsA = a.cells;
 				const cellsB = b.cells;
@@ -504,9 +504,14 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 				return 0;
 			});
 	
+			// Clear and re-append sorted rows
 			const tbody = table.querySelector('tbody');
 			rows.forEach(row => tbody.appendChild(row));
 		});
+	
+		// Cleanup extraneous CKEditor elements
+		document.querySelectorAll('#editor .ck-table-column-resizer').forEach(resizer => resizer.remove());
+		document.querySelectorAll('#editor br[data-cke-filler="true"]').forEach(filler => filler.remove());
 	
 		// Update CKEditor content to reflect the sorted tables
 		const updatedContent = document.querySelector('#editor').innerHTML;
@@ -516,7 +521,7 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 		localStorage.setItem('editorContent', updatedContent);
 	}
 	
-	window.sortTables = sortTables;
+	window.sortTables = sortTables;	
 	
     return editor;
 }).catch(error => {

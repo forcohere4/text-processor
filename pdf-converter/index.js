@@ -61,7 +61,7 @@ app.post('/generate-pdf', async (req, res) => {
         // Add custom CSS for text colors and table styling without affecting existing backgrounds
         await page.addStyleTag({
             content: `
-                table { border-collapse: collapse; max-width: 100%; }
+                table { border-collapse: collapse; width: 100%; max-width: 100%; }
                 th, td { 
                     border: 1px solid black; 
                     padding: 2px;
@@ -74,18 +74,29 @@ app.post('/generate-pdf', async (req, res) => {
                     background-color: #f2f2f2; /* Light gray background for table header */
                 }
 
-                /* Specific column widths for tables with exactly 6 columns */
-                table th:nth-child(1), table td:nth-child(1) { width: 5%; }
-                table th:nth-child(2), table td:nth-child(2) { width: 5%; }
-                table th:nth-child(3), table td:nth-child(3) { width: 23%; }
-                table th:nth-child(4), table td:nth-child(4) { width: 47%; }
-                table th:nth-child(5), table td:nth-child(5) { width: 10%; }
-                table th:nth-child(6), table td:nth-child(6) { width: 10%; }
+                ${orientation === 'landscape' ? `
+                    table th:nth-child(1), table td:nth-child(1) { width: 5%; }
+                    table th:nth-child(2), table td:nth-child(2) { width: 5%; }
+                    table th:nth-child(3), table td:nth-child(3) { width: 24%; }
+                    table th:nth-child(4), table td:nth-child(4) { width: 50%; }
+                    table th:nth-child(5), table td:nth-child(5) { width: 8%; }
+                    table th:nth-child(6), table td:nth-child(6) { width: 8%; }
+                ` : `
+                    table th:nth-child(1), table td:nth-child(1) { width: 5%; }
+                    table th:nth-child(2), table td:nth-child(2) { width: 5%; }
+                    table th:nth-child(3), table td:nth-child(3) { width: 23%; }
+                    table th:nth-child(4), table td:nth-child(4) { width: 47%; }
+                    table th:nth-child(5), table td:nth-child(5) { width: 10%; }
+                    table th:nth-child(6), table td:nth-child(6) { width: 10%; }
+                `}
 
                 /* Hide editor-specific elements to remove artifacts */
                 .ck-widget__selection-handle,
                 .ck-widget__type-around,
                 .ck-icon__selected-indicator,
+                .ck-table-column-resizer {
+                    display: none;
+                }
             `,
         });
 
