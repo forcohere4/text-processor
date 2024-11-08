@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Selection with Metadata</title>
+    <script>
+        // Function to get selected text and find metadata
+        function getSelectedTextWithMetadata() {
+            const selection = window.getSelection();
+            const selectedText = selection.toString();
+            
+            if (selectedText) {
+                // Find the entire text in the element where the selection was made
+                const fullText = document.getElementById("content").innerText;
+
+                // Get the position of the selected text
+                const selectionStart = fullText.indexOf(selectedText);
+
+                if (selectionStart !== -1) {
+                    // Find the nearest "क्रम" section before the selection
+                    const kramMetadata = getMetadataBefore(fullText, selectionStart, "क्रम");
+                    
+                    // Find the nearest "ग्रंथ" section before the selection
+                    const granthMetadata = getMetadataBefore(fullText, selectionStart, "ग्रंथ");
+
+                    // Display the selected text and metadata
+                    console.log("Selected text:", selectedText);
+                    console.log("क्रम Metadata:", kramMetadata);
+                    console.log("ग्रंथ Metadata:", granthMetadata);
+
+                    alert(
+                        `Selected Text: ${selectedText}\n` +
+                        `क्रम Metadata: ${kramMetadata}\n` +
+                        `ग्रंथ Metadata: ${granthMetadata}`
+                    );
+                }
+            }
+        }
+
+        // Function to find metadata section before a selected position
+        function getMetadataBefore(fullText, position, keyword) {
+            // Find the last occurrence of the keyword before the position
+            const keywordIndex = fullText.lastIndexOf(keyword, position);
+
+            if (keywordIndex !== -1) {
+                // Find the end of this metadata section (next line break)
+                const endOfMetadata = fullText.indexOf("\n\n", keywordIndex);
+                const metadata = fullText.slice(keywordIndex, endOfMetadata).trim();
+                return metadata;
+            }
+            return "Metadata not found";
+        }
+
+        // Add an event listener to capture selection on mouseup
+        document.addEventListener("mouseup", getSelectedTextWithMetadata);
+    </script>
+</head>
+<body>
+    <div id="content">
+        <!-- Box 1 Section -->
+        <div class="section">
+            <p>गीतार्थ गंगा</p>
+            <p>SP of Box No - 1</p>
+            <p>अनुग्रह</p>
+            <p>क्रम :- 1, 8. स्वरूप</p>
+            <p>ग्रंथ :- त्रिषष्टिशलाकापुरुषचरित्र पर्व-01 (प्रकाशक:-कलिकालसर्वज्ञ हेमचंद्राचार्य नवम जन्म शताब्दी स्मृति संस्कार शिक्षण निधि,(P)आत्मानंद जैन सभा, भावनगर, LibNo:-B002241)</p>
+            <p>Adhyay :- सर्ग - 06 (मरीचिभव-भाविशलाकापुरुष-भगवन्निर्वाण-भरतनिर्वाणवर्णनः),श्लोक-450</p>
+            <p>Sandarbh Granth Name - त्रिषष्टिशलाकापुरुषचरित्र पर्व-01 - टीप्पण</p>
+
+            <p>मू०- सकलार्हत्प्रतिष्ठानमधिष्ठानं</p>
+            <p>टी०- ‘प्रणम्य परमात्मानं त्रिषष्टिचरितस्य वै।</p>
+            <p>योगार्पणेतिनाम्नीयं टिप्पणी रच्यते मुदा।’</p>
+            <p>सर्वे अर्हन्तः प्रतिष्ठानम्‌=केन्द्रस्थानानि यस्य।</p>
+            <p>अधिष्ठीयते=प्राप्यते अनेन शिवश्रीः इति अधिष्ठानम्‌।</p>
+        </div>
+
+        <!-- Box 2 Section -->
+        <div class="section">
+            <p>अनुग्रह</p>
+            <p>क्रम :- 2, 8. स्वरूप</p>
+            <p>ग्रंथ :- त्रिषष्टिशलाकापुरुषचरित्र पर्व-06 (प्रकाशक:-जिनशासन आराधना ट्रस्ट,(P)आत्मानंद जैन सभा, भावनगर,कलिकालसर्वज्ञ हेमचंद्राचार्य नवम जन्मशताब्दी स्मृति संस्कार शिक्षण निधि, LibNo:-C001345,B011187)</p>
+            <p>Adhyay :- सर्ग - 06 (श्रीमल्लिनाथचरितवर्णनः),श्लोक-151,152,153,...,201</p>
+            <p>Sandarbh Granth Name - त्रिषष्टिशलाकापुरुषचरित्र पर्व-06 - टीप्पण</p>
+
+            <p>अ०- षष्ठं पर्व</p>
+            <p>मू०- महामोहदृषद्‌भेदसरित्पूरसहोदराः।।१।।</p>
+            <p>टी०- महामोहरूपप्रस्तरभङ्गाय।</p>
+        </div>
+
+        <!-- Box 3 Section -->
+        <div class="section">
+            <p>अनुग्रह</p>
+            <p>क्रम :- 3, 8. स्वरूप</p>
+            <p>ग्रंथ :- त्रिषष्टिशलाकापुरुषचरित्र पर्व-10 (प्रकाशक:-गंगाबाई जैन चेरीटेबल ट्रस्ट, LibNo:-C009683)</p>
+            <p>Adhyay :- सर्ग - 02 (महावीरजन्मप्रव्रज्या),श्लोक-37,38,...,48</p>
+            <p>।।अथ द्वादशः सर्गः।।</p>
+
+            <p>अपृच्छदभयो भूयः प्रणम्य परमेश्वरम्।</p>
+            <p>उदायनस्य राजर्षेः क उदर्को भविष्यति?।।1।।</p>
+        </div>
+    </div>
+</body>
+</html>

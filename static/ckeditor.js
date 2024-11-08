@@ -469,7 +469,13 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
     // Filter function for search
     searchInput.addEventListener('input', filterTable);
 
+	function cleanEditor() {
+        document.querySelectorAll('#editor .ck-table-column-resizer').forEach(resizer => resizer.remove());
+        document.querySelectorAll('#editor br[data-cke-filler="true"]').forEach(filler => filler.remove());
+    }
+	
     function filterTable() {
+		cleanEditor();
         const searchTerm = searchInput.value.toLowerCase();
         if (!activeTable || activeColumn === null) {
             searchTag.style.display = 'none';

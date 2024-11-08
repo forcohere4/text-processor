@@ -280,3 +280,7 @@
 .clear-tag:hover {
     color: rgb(0, 0, 0);
 }
+
+.ck-table-bogus-paragraph {
+    display: initial !important;
+}
