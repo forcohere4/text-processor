@@ -376,6 +376,18 @@ const editorConfig = {
 	},
 	table: {
 		contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+	},
+	autosave: {
+		save(editor) {
+			// Get the editor content as raw HTML
+			let data = editor.getData();
+			
+			// Save directly to local storage without modification
+			localStorage.setItem('editorContent', data);
+			console.log('Content saved to local storage');
+			
+			return Promise.resolve();
+		}
 	}
 };
 
@@ -389,15 +401,11 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
     window.editorInstance = editor;
 
     // Load saved content from local storage if available
-    const savedContent = localStorage.getItem('editorContent');
-    if (savedContent) {
-        editor.setData(savedContent);
-    }
-
-    // Save the content to local storage on editor changes
-    editor.model.document.on('change:data', () => {
-        localStorage.setItem('editorContent', editor.getData());
-    });
+	const savedContent = localStorage.getItem('editorContent');
+	if (savedContent) {
+		// Set data directly in the editor to preserve CKEditor’s HTML structure
+		editor.setData(savedContent);
+	}
 
     // Append toolbar and menu bar to the document
     document.querySelector('#editor-toolbar').appendChild(editor.ui.view.toolbar.element);
