@@ -43,6 +43,10 @@ app.post('/generate-pdf', async (req, res) => {
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
         await page.evaluate(() => {
+            document.querySelectorAll('figure').forEach(fig => fig.style.width = '');
+        });
+
+        await page.evaluate(() => {
             document.querySelectorAll('.marker-yellow').forEach(el => el.style.backgroundColor = '#FFFF99');
             document.querySelectorAll('.marker-green').forEach(el => el.style.backgroundColor = '#CCFFCC');
             document.querySelectorAll('.marker-pink').forEach(el => el.style.backgroundColor = '#FFCCEB');
