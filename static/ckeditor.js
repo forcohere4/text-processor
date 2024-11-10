@@ -380,7 +380,7 @@ const editorConfig = {
 	autosave: {
 		save(editor) {
 			// Get the editor content as raw HTML
-			let data = editor.getData();
+			let data = document.getElementById('editor').innerHTML;
 			
 			// Save directly to local storage without modification
 			localStorage.setItem('editorContent', data);
