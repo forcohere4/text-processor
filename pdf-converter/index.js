@@ -61,35 +61,40 @@ app.post('/generate-pdf', async (req, res) => {
         // Add custom CSS for text colors and table styling without affecting existing backgrounds
         await page.addStyleTag({
             content: `
-                table { border-collapse: collapse; width: 100%; max-width: 100%; }
+                table { 
+                    table-layout: fixed; 
+                    border-collapse: collapse; 
+                    width: 100%; 
+                    max-width: 100%; 
+                }
                 th, td { 
                     border: 1px solid black; 
-                    padding: 2px;
                     word-wrap: break-word;     
                     word-break: break-word;    
-                    white-space: normal;       
+                    white-space: normal;      
+                    overflow: hidden; 
                 }
                 th { 
-                    padding: 0.5px;
                     background-color: #f2f2f2; /* Light gray background for table header */
                 }
-
+        
+                /* Define column widths within colgroup using !important */
                 ${orientation === 'landscape' ? `
-                    table th:nth-child(1), table td:nth-child(1) { width: 5%; }
-                    table th:nth-child(2), table td:nth-child(2) { width: 5%; }
-                    table th:nth-child(3), table td:nth-child(3) { width: 24%; }
-                    table th:nth-child(4), table td:nth-child(4) { width: 50%; }
-                    table th:nth-child(5), table td:nth-child(5) { width: 8%; }
-                    table th:nth-child(6), table td:nth-child(6) { width: 8%; }
+                    col:nth-child(1) { width: 3% !important; }
+                    col:nth-child(2) { width: 4% !important; }
+                    col:nth-child(3) { width: 21% !important; }
+                    col:nth-child(4) { width: 56% !important; }
+                    col:nth-child(5) { width: 8% !important; }
+                    col:nth-child(6) { width: 8% !important; }
                 ` : `
-                    table th:nth-child(1), table td:nth-child(1) { width: 5%; }
-                    table th:nth-child(2), table td:nth-child(2) { width: 5%; }
-                    table th:nth-child(3), table td:nth-child(3) { width: 23%; }
-                    table th:nth-child(4), table td:nth-child(4) { width: 47%; }
-                    table th:nth-child(5), table td:nth-child(5) { width: 10%; }
-                    table th:nth-child(6), table td:nth-child(6) { width: 10%; }
+                    col:nth-child(1) { width: 5% !important; }
+                    col:nth-child(2) { width: 5% !important; }
+                    col:nth-child(3) { width: 23% !important; }
+                    col:nth-child(4) { width: 47% !important; }
+                    col:nth-child(5) { width: 10% !important; }
+                    col:nth-child(6) { width: 10% !important; }
                 `}
-
+        
                 /* Hide editor-specific elements to remove artifacts */
                 .ck-widget__selection-handle,
                 .ck-widget__type-around,
@@ -98,7 +103,7 @@ app.post('/generate-pdf', async (req, res) => {
                     display: none;
                 }
             `,
-        });
+        });               
 
         // Remove unwanted editor artifacts from the DOM before generating the PDF
         await page.evaluate(() => {
