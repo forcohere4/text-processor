@@ -499,6 +499,40 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 
 	function sortTables() {
 		const tables = document.querySelectorAll('#editor table');
+		
+		// Define the custom ranking order for the 2nd column
+		const customOrder = [
+			"व्यु",
+			"व्या",
+			"साल",
+			"ल",
+			"लचि",
+			"पर्या",
+			"विक",
+			"स्व",
+			"परि"
+		];
+		
+		// Function to normalize text by removing periods and extra spaces
+		function normalizeText(text) {
+			return text.replace(/\./g, '')  // Remove periods
+					  .replace(/\s+/g, '')  // Remove all spaces
+					  .trim();              // Trim any remaining whitespace
+		}
+		
+		// Function to get the base form of text for comparison
+		function getBaseForm(text) {
+			const normalized = normalizeText(text);
+			// Find the matching base form from customOrder
+			return customOrder.find(base => normalized.startsWith(base)) || normalized;
+		}
+		
+		// Function to get the index based on custom order
+		function getCustomOrderIndex(value) {
+			const baseForm = getBaseForm(value);
+			const index = customOrder.indexOf(baseForm);
+			return index !== -1 ? index : Infinity; // Return Infinity if not in custom order
+		}
 	
 		tables.forEach((table) => {
 			const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -507,14 +541,27 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 			rows.sort((a, b) => {
 				const cellsA = a.cells;
 				const cellsB = b.cells;
-	
-				for (let i = 1; i < cellsA.length; i++) {
-					const valueA = cellsA[i].textContent.trim();
-					const valueB = cellsB[i].textContent.trim();
-	
-					if (valueA > valueB) return 1;
-					if (valueA < valueB) return -1;
+				
+				// Compare values in the 2nd column based on custom order
+				const valueA = cellsA[1].textContent.trim();
+				const valueB = cellsB[1].textContent.trim();
+				
+				const orderIndexA = getCustomOrderIndex(valueA);
+				const orderIndexB = getCustomOrderIndex(valueB);
+				
+				if (orderIndexA !== orderIndexB) {
+					return orderIndexA - orderIndexB;
 				}
+	
+				// Fall back to alphabetical comparison for the remaining columns
+				for (let i = 2; i < cellsA.length; i++) {
+					const cellValueA = cellsA[i].textContent.trim();
+					const cellValueB = cellsB[i].textContent.trim();
+					
+					if (cellValueA > cellValueB) return 1;
+					if (cellValueA < cellValueB) return -1;
+				}
+				
 				return 0;
 			});
 	
@@ -535,7 +582,7 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 		localStorage.setItem('editorContent', updatedContent);
 	}
 	
-	window.sortTables = sortTables;	
+	window.sortTables = sortTables;
 	
     return editor;
 }).catch(error => {
