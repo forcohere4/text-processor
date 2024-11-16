@@ -286,7 +286,7 @@ const editorConfig = {
 		]
 	},
 	initialData:
-		'<table><thead><tr><th>Sr.</th><th>V.T</th><th>Granth</th><th>ShastraPath</th><th>Pub. Rem</th><th>In. Rem</th></tr></thead><tbody><tr><td>1</td><td>स्व.</td><td></td><td></td><td></td><td></td></tr></tbody></table>',
+		'<table style="font-size: 12px;" class="ck-table-resized"><colgroup><col style="width:5.69%;"><col style="width:5.69%;"><col style="width:23.53%;"><col style="width:53.71%;"><col style="width:5.69%;"><col style="width:5.69%;"></colgroup><thead><tr><th>Sr.</th><th>V.T</th><th>Granth</th><th>ShastraPath</th><th>Pub. Rem</th><th>In. Rem</th></tr></thead><tbody><tr><td>1</td><td>स्व.</td><td></td><td></td><td></td><td></td></tr></tbody></table>',
 	link: {
 		addTargetToExternalLinks: true,
 		defaultProtocol: 'https://',
@@ -499,34 +499,40 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 
 	function sortTables() {
 		const tables = document.querySelectorAll('#editor table');
-		
+	
 		// Define the custom ranking order for the 2nd column
 		const customOrder = [
-			"व्यु",
-			"व्या",
-			"साल",
-			"ल",
-			"लचि",
-			"पर्या",
-			"विक",
-			"स्व",
-			"परि"
+			"व्यु", "व्युत्पत्तिअर्थ",
+			"व्या", "व्याख्या",
+			"साल", "सान्वर्थलक्षण",
+			"ल", "लक्षण",
+			"लचि", "लक्षणचिन्ह",
+			"पर्या", "पर्यायवाची",
+			"विक", "विकल्पवाची",
+			"स्व", "स्वरूप",
+			"परि", "परिचय"
 		];
-		
+	
 		// Function to normalize text by removing periods and extra spaces
 		function normalizeText(text) {
 			return text.replace(/\./g, '')  // Remove periods
-					  .replace(/\s+/g, '')  // Remove all spaces
-					  .trim();              // Trim any remaining whitespace
+					   .replace(/\s+/g, '')  // Remove all spaces
+					   .trim();              // Trim any remaining whitespace
 		}
-		
+	
 		// Function to get the base form of text for comparison
 		function getBaseForm(text) {
 			const normalized = normalizeText(text);
-			// Find the matching base form from customOrder
+	
+			// Check for an exact match in the custom order
+			if (customOrder.includes(normalized)) {
+				return normalized;
+			}
+	
+			// Check for a prefix match in the custom order
 			return customOrder.find(base => normalized.startsWith(base)) || normalized;
 		}
-		
+	
 		// Function to get the index based on custom order
 		function getCustomOrderIndex(value) {
 			const baseForm = getBaseForm(value);
@@ -541,14 +547,14 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 			rows.sort((a, b) => {
 				const cellsA = a.cells;
 				const cellsB = b.cells;
-				
+	
 				// Compare values in the 2nd column based on custom order
 				const valueA = cellsA[1].textContent.trim();
 				const valueB = cellsB[1].textContent.trim();
-				
+	
 				const orderIndexA = getCustomOrderIndex(valueA);
 				const orderIndexB = getCustomOrderIndex(valueB);
-				
+	
 				if (orderIndexA !== orderIndexB) {
 					return orderIndexA - orderIndexB;
 				}
@@ -557,11 +563,11 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 				for (let i = 2; i < cellsA.length; i++) {
 					const cellValueA = cellsA[i].textContent.trim();
 					const cellValueB = cellsB[i].textContent.trim();
-					
+	
 					if (cellValueA > cellValueB) return 1;
 					if (cellValueA < cellValueB) return -1;
 				}
-				
+	
 				return 0;
 			});
 	
@@ -582,7 +588,7 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 		localStorage.setItem('editorContent', updatedContent);
 	}
 	
-	window.sortTables = sortTables;
+	window.sortTables = sortTables;	
 	
     return editor;
 }).catch(error => {
