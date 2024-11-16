@@ -103,6 +103,16 @@ function clearEditorContent() {
     }
 }
 
+function defaultTable() {
+    if (editorInstance) {
+        const confirmReset = confirm("Are you sure you want to reset the content to the default table?");
+        if (confirmReset) {
+            const dataInitial = '<table><thead><tr><th>Sr.</th><th>V.T</th><th>Granth</th><th>ShastraPath</th><th>Pub. Rem</th><th>In. Rem</th></tr></thead><tbody><tr><td>1</td><td>स्व.</td><td></td><td></td><td></td><td></td></tr></tbody></table>';
+            editorInstance.setData(dataInitial); // Reset to initial data
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const languageCheckboxes = document.querySelectorAll('.language-options input[type="checkbox"]');
     
