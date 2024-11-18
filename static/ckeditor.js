@@ -400,27 +400,70 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
     // Store the created editor instance in a global variable
     window.editorInstance = editor;
 
-	// Load saved content from local storage if available
+    // Load saved content from local storage if available
 	const savedContent = localStorage.getItem('editorContent');
 	if (savedContent) {
-		// Create a temporary DOM element to manipulate the content
-		const tempElement = document.createElement('div');
-		tempElement.innerHTML = savedContent;
-
-		// Remove all <br data-cke-filler="true"> elements
-		const fillerElements = tempElement.querySelectorAll('br[data-cke-filler="true"]');
-		fillerElements.forEach(filler => filler.remove());
-
-		// Get the cleaned HTML content
-		const cleanedContent = tempElement.innerHTML;
-
-		// Set cleaned data into the CKEditor
-		editor.setData(cleanedContent);
+		// Set data directly in the editor to preserve CKEditor’s HTML structure
+		editor.setData(savedContent);
 	}
 
     // Append toolbar and menu bar to the document
     document.querySelector('#editor-toolbar').appendChild(editor.ui.view.toolbar.element);
     document.querySelector('#editor-menu-bar').appendChild(editor.ui.view.menuBarView.element);
+
+	async function importRawFile() {
+		try {
+			// Create a file input element
+			const fileInput = document.createElement("input");
+			fileInput.type = "file";
+			fileInput.accept = ".tpsrc"; // Accept files with the custom extension
+	
+			// Listen for file selection
+			fileInput.addEventListener("change", async (event) => {
+				const file = event.target.files[0];
+	
+				if (!file) {
+					alert("No file selected.");
+					return;
+				}
+	
+				// Read the content of the file
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					const fileContent = e.target.result;
+	
+					// Ask for confirmation before replacing the editor content
+					const confirmation = confirm(
+						"The current editor content will be replaced. Do you want to proceed?"
+					);
+	
+					if (confirmation) {
+						// Replace the editor content
+						if (window.editorInstance) {
+							window.editorInstance.setData(fileContent);
+						} else {
+							console.error("Editor instance is not available.");
+						}
+					}
+				};
+	
+				// Handle potential errors while reading the file
+				reader.onerror = () => {
+					console.error("Error reading the file.");
+					alert("Error reading the file.");
+				};
+	
+				// Read the file as a string
+				reader.readAsText(file);
+			});
+	
+			// Trigger the file input click
+			fileInput.click();
+		} catch (error) {
+			console.error("Error while importing raw file:", error);
+		}
+	}
+	window.importRawFile = importRawFile;
 
     const searchInput = document.getElementById('table-search');
     const searchTag = document.createElement('span');

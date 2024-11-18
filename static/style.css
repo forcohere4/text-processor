@@ -35,19 +35,47 @@ html, body {
 /* Hamburger Menu - keep your existing styles but update z-index */
 .hamburger-menu {
     position: absolute;
-    top: 12px;  /* Changed from top: 12px to bottom: 12px */
+    bottom: 12px; /* Adjust positioning as needed */
     left: 12px;
     z-index: 11;
     cursor: pointer;
-    width: 24px;
-    height: 18px;
+    width: 20px; /* Adjust icon size */
+    height: 20px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-around;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(240, 238, 238, 0.9); /* Optional: better visibility */
+    padding: 8px;
+    border-radius: 50%; /* Makes it circular */
     transition: transform 0.3s ease;
-    background-color: rgba(240, 238, 238, 0.9); /* Optional: added for better visibility */
-    padding: 8px;  /* Optional: added for better touch target */
-    border-radius: 4px;  /* Optional: for better appearance */
+}
+
+.hamburger-menu:hover {
+    transform: scale(1.1);
+    background-color: rgba(220, 220, 220, 0.9);
+}
+
+/* Tooltip styles */
+.hamburger-menu::after {
+    content: "Settings";
+    position: absolute;
+    bottom: calc(100% + 8px); /* Position above the button */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.75); /* Tooltip background */
+    color: #fff; /* Tooltip text color */
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.hamburger-menu:hover::after {
+    opacity: 1;
+    visibility: visible;
 }
 
 .hamburger-menu div {

@@ -66,8 +66,7 @@ document.getElementById('upload-button').addEventListener('click', async () => {
                             type="application/pdf" 
                             width="100%" 
                             height="100%">
-                        <p>Your browser does not support PDFs. 
-                           <a href="${result.html_url}">Download the PDF</a>.</p>
+                        <p>The requested URL was not found on the server. Please upload the file again.</p>
                     </object>`;
             } else {
                 // Render other files (e.g., DOC or DOCX) in an iframe
@@ -124,7 +123,7 @@ window.addEventListener('load', () => {
                         type="application/pdf" 
                         width="100%" 
                         height="100%">
-                    <p>URL Not Found. The requested URL was not found on the server. Please upload the file again.</p>
+                    <p>The requested URL was not found on the server. Please upload the file again.</p>
                 </object>`;
         } else {
             // Load other saved content into an iframe
@@ -278,5 +277,43 @@ async function exportfilteredPDF() {
         }
     } catch (error) {
         console.error("Error while generating PDF:", error);
+    }
+}
+
+async function exportRawFile() {
+    // Get the content from the editor
+    const editorContent = document.getElementById("editor").innerHTML;
+
+    // Define the custom file extension
+    const customExtension = ".tpsrc"; // Custom extension for the file
+
+    try {
+        // Create a timestamp for the file name in IST
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+        const istDate = new Date(now.getTime() + istOffset);
+        const timestamp = istDate.toISOString()
+            .replace("T", "-") // Replace 'T' with '-'
+            .replace(/[:.]/g, "-") // Replace ':' and '.' with '-'
+            .slice(0, 19); // Keep only the YYYY-MM-DD-HH-MM-SS part
+
+        // Create a Blob containing the editor content
+        const blob = new Blob([editorContent], { type: "text/html" });
+
+        // Generate a temporary URL for the Blob
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a temporary link to download the file
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `RAW-${timestamp}${customExtension}`; // Use custom extension
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up the temporary URL and link
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Error while exporting raw file:", error);
     }
 }
