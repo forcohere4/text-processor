@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to HTML Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 80vh;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PDF to HTML Viewer</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="file">Select a PDF file:</label>
+        <input type="file" name="file" id="file" accept="application/pdf" required>
+        <button type="submit">Convert and View</button>
+    </form>
+
+    {% if html_url %}
+    <h2>Converted HTML:</h2>
+    <iframe src="{{ html_url }}" title="Converted PDF"></iframe>
+    {% endif %}
+</body>
+</html>
