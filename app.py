@@ -2,10 +2,7 @@ import os
 import subprocess
 from flask import Flask, request, render_template, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
-from pdf2docx import Converter
 import ocrmypdf
-import fitz  # PyMuPDF
-from docx import Document
 import requests
 
 app = Flask(__name__)
@@ -68,13 +65,24 @@ def upload():
         selected_languages.append('hin')
     languages = '+'.join(selected_languages) if selected_languages else 'eng'
 
-    # Convert .doc and .pdf to .docx if needed
-    if filename.endswith('.doc') or filename.endswith('.pdf'):
-        docx_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename.rsplit('.', 1)[0] + '.docx')
+    # If the file is a PDF, handle it directly
+    if filename.endswith('.pdf'):
+        if ocr_enabled:
+            try:
+                # Perform OCR on the PDF
+                ocrmypdf.ocr(file_path, file_path, language=languages, force_ocr=True, output_type='pdf')
+            except Exception as ocr_error:
+                return jsonify({"error": f"Error making PDF searchable: {str(ocr_error)}"}), 500
 
-        try:
-            if filename.endswith('.doc'):
-                # Convert .doc to .docx using LibreOffice
+        # Return the PDF URL for direct rendering
+        return jsonify({"html_url": f"/uploads/{filename}"})
+
+    # Convert .doc and .docx files to .html
+    if filename.endswith('.doc') or filename.endswith('.docx'):
+        # Convert .doc to .docx if needed
+        if filename.endswith('.doc'):
+            docx_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename.rsplit('.', 1)[0] + '.docx')
+            try:
                 convert_command = [
                     'libreoffice',
                     '--headless',
@@ -83,46 +91,37 @@ def upload():
                     file_path
                 ]
                 subprocess.run(convert_command, check=True)
-            elif filename.endswith('.pdf'):
-                # Only apply OCR if the checkbox is checked
-                if ocr_enabled:
-                    try:
-                        # Perform OCR on the PDF and overwrite with a searchable version
-                        ocrmypdf.ocr(file_path, file_path, language=languages, force_ocr=True, output_type='pdf')
-                    except Exception as ocr_error:
-                        return jsonify({"error": f"Error making PDF searchable: {str(ocr_error)}"}), 500
-                    # Convert PDF to DOCX using text extraction to ensure searchability
-                    pdf_to_docx_text_extraction(file_path, docx_file_path)
-                else:
-                    # Convert PDF to DOCX using pdf2docx with layout preservation for tables
-                    cv = Converter(file_path)
-                    cv.convert(docx_file_path, start=0, end=None, layout='exact')  # Preserve layout better
-                    cv.close()
-            # Use the converted .docx file for further processing
-            file_path = docx_file_path
-        except Exception as e:
-            return jsonify({"error": f"Error converting to .docx: {str(e)}"}), 500
+                file_path = docx_file_path  # Update file_path to the converted .docx
+            except subprocess.CalledProcessError as e:
+                return jsonify({"error": f"Error converting .doc to .docx: {str(e)}"}), 500
 
-    # Convert .docx file to .html
-    output_html = os.path.join(app.config['OUTPUT_FOLDER'], filename.rsplit('.', 1)[0] + '.html')
+        # Convert .docx to .html
+        output_html = os.path.join(app.config['OUTPUT_FOLDER'], filename.rsplit('.', 1)[0] + '.html')
+        try:
+            convert_command = [
+                'libreoffice',
+                '--headless',
+                '--convert-to', 'html',
+                '--outdir', app.config['OUTPUT_FOLDER'],
+                file_path
+            ]
+            subprocess.run(convert_command, check=True)
+        except subprocess.CalledProcessError as e:
+            return jsonify({"error": f"Error converting .docx to HTML: {str(e)}"}), 500
 
-    try:
-        # Try using LibreOffice for conversion
-        convert_command = [
-            'libreoffice',
-            '--headless',
-            '--convert-to', 'html',
-            '--outdir', app.config['OUTPUT_FOLDER'],
-            file_path
-        ]
-        subprocess.run(convert_command, check=True)
-    except subprocess.CalledProcessError as e:
-        return jsonify({"error": f"Error converting document to HTML: {str(e)}"}), 500
+        # Return the HTML URL for rendering
+        return jsonify({"html_url": f"/outputs/{filename.rsplit('.', 1)[0]}.html"})
 
-    # Return the HTML URL for display in the viewer
-    return jsonify({"html_url": f"/outputs/{filename.rsplit('.', 1)[0]}.html"})
+    # If file format is not supported for conversion
+    return jsonify({"error": "Unsupported file format for processing."}), 400
 
-# Serve the converted HTML file
+
+# Serve the uploaded PDFs directly from the upload folder
+@app.route('/uploads/<filename>')
+def serve_uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+# Serve the converted HTML files
 @app.route('/outputs/<filename>')
 def serve_output(filename):
     return send_from_directory(app.config['OUTPUT_FOLDER'], filename)

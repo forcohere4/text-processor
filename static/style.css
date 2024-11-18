@@ -15,18 +15,29 @@ html, body {
 
 .viewer {
     position: relative;
-    background-color: #f0f0f0; /* Optional styling for the viewer */
+    background-color: #f0f0f0;
+    height: 100%; /* Ensure full height */
 }
+
+.viewer-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1; /* Lower than hamburger menu and sidebar */
+}
+
 .editor {
     background-color: #ffffff; /* Optional styling for the viewer */
 }
 
-/* Hamburger Menu */
+/* Hamburger Menu - keep your existing styles but update z-index */
 .hamburger-menu {
     position: absolute;
-    top: 12px;
+    top: 12px;  /* Changed from top: 12px to bottom: 12px */
     left: 12px;
-    z-index: 10;
+    z-index: 11;
     cursor: pointer;
     width: 24px;
     height: 18px;
@@ -34,6 +45,9 @@ html, body {
     flex-direction: column;
     justify-content: space-around;
     transition: transform 0.3s ease;
+    background-color: rgba(240, 238, 238, 0.9); /* Optional: added for better visibility */
+    padding: 8px;  /* Optional: added for better touch target */
+    border-radius: 4px;  /* Optional: for better appearance */
 }
 
 .hamburger-menu div {
@@ -43,7 +57,7 @@ html, body {
     transition: all 0.3s ease;
 }
 
-/* Sidebar Styling */
+/* Sidebar - keep your existing styles but update z-index */
 .sidebar {
     position: fixed;
     top: 0;
@@ -52,12 +66,19 @@ html, body {
     height: 100%;
     background-color: #e9e9e9;
     padding-top: 60px;
-    z-index: 9;
+    z-index: 10; /* Higher than content, lower than hamburger */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.15);
     overflow-y: auto;
-    transform: translateX(-100%); /* Start off-screen */
-    transition: transform 0.3s ease; /* Smooth slide transition */
-    /* No 'display: none;' */
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+/* Add styles for PDF object and iframe */
+.viewer-content .pdf,
+.viewer-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
 /* Activate Sidebar */

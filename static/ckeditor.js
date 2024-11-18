@@ -400,11 +400,22 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
     // Store the created editor instance in a global variable
     window.editorInstance = editor;
 
-    // Load saved content from local storage if available
+	// Load saved content from local storage if available
 	const savedContent = localStorage.getItem('editorContent');
 	if (savedContent) {
-		// Set data directly in the editor to preserve CKEditor’s HTML structure
-		editor.setData(savedContent);
+		// Create a temporary DOM element to manipulate the content
+		const tempElement = document.createElement('div');
+		tempElement.innerHTML = savedContent;
+
+		// Remove all <br data-cke-filler="true"> elements
+		const fillerElements = tempElement.querySelectorAll('br[data-cke-filler="true"]');
+		fillerElements.forEach(filler => filler.remove());
+
+		// Get the cleaned HTML content
+		const cleanedContent = tempElement.innerHTML;
+
+		// Set cleaned data into the CKEditor
+		editor.setData(cleanedContent);
 	}
 
     // Append toolbar and menu bar to the document

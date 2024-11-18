@@ -11,7 +11,6 @@ function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("active");
 }
 
-// File upload functionality
 document.getElementById('upload-button').addEventListener('click', async () => {
     const fileInput = document.getElementById('file-upload');
     const ocrCheckbox = document.getElementById('ocr-checkbox').checked;
@@ -47,19 +46,46 @@ document.getElementById('upload-button').addEventListener('click', async () => {
         const result = await response.json();
 
         if (response.ok) {
-            // Display the converted HTML in the viewer without removing the hamburger menu
+            // Get the viewer container
             const viewer = document.querySelector('.viewer');
-
-            // Check if an iframe already exists; if so, update its src, otherwise create one
-            let iframe = viewer.querySelector('iframe');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.setAttribute('frameborder', '0');
-                iframe.setAttribute('width', '100%');
-                iframe.setAttribute('height', '100%');
-                viewer.appendChild(iframe);
+            
+            // Create or get the content container
+            let contentContainer = viewer.querySelector('.viewer-content');
+            if (!contentContainer) {
+                contentContainer = document.createElement('div');
+                contentContainer.className = 'viewer-content';
+                // Append after hamburger menu and sidebar
+                viewer.appendChild(contentContainer);
             }
-            iframe.src = result.html_url;
+
+            if (result.html_url.endsWith('.pdf')) {
+                // Render PDF in the content container
+                contentContainer.innerHTML = `
+                    <object class="pdf" 
+                            data="${result.html_url}" 
+                            type="application/pdf" 
+                            width="100%" 
+                            height="100%">
+                        <p>Your browser does not support PDFs. 
+                           <a href="${result.html_url}">Download the PDF</a>.</p>
+                    </object>`;
+            } else {
+                // Render other files (e.g., DOC or DOCX) in an iframe
+                let iframe = contentContainer.querySelector('iframe');
+                if (!iframe) {
+                    iframe = document.createElement('iframe');
+                    iframe.setAttribute('frameborder', '0');
+                    iframe.setAttribute('width', '100%');
+                    iframe.setAttribute('height', '100%');
+                    contentContainer.appendChild(iframe);
+                }
+                iframe.src = result.html_url;
+            }
+
+            // Force a viewer refresh when .doc/.docx is uploaded
+            if (result.html_url.endsWith('.html')) {
+                location.reload(); // Simple page reload to refresh the viewer
+            }
 
             // Save the viewer content URL to local storage
             localStorage.setItem('viewerContentUrl', result.html_url);
@@ -80,15 +106,38 @@ window.addEventListener('load', () => {
     const savedViewerContentUrl = localStorage.getItem('viewerContentUrl');
     if (savedViewerContentUrl) {
         const viewer = document.querySelector('.viewer');
-        let iframe = viewer.querySelector('iframe');
-        if (!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.setAttribute('frameborder', '0');
-            iframe.setAttribute('width', '100%');
-            iframe.setAttribute('height', '100%');
-            viewer.appendChild(iframe);
+        
+        // Create or get the content container
+        let contentContainer = viewer.querySelector('.viewer-content');
+        if (!contentContainer) {
+            contentContainer = document.createElement('div');
+            contentContainer.className = 'viewer-content';
+            // Append after hamburger menu and sidebar
+            viewer.appendChild(contentContainer);
         }
-        iframe.src = savedViewerContentUrl;
+
+        if (savedViewerContentUrl.endsWith('.pdf')) {
+            // Load the saved PDF into the content container
+            contentContainer.innerHTML = `
+                <object class="pdf" 
+                        data="${savedViewerContentUrl}" 
+                        type="application/pdf" 
+                        width="100%" 
+                        height="100%">
+                    <p>URL Not Found. The requested URL was not found on the server. Please upload the file again.</p>
+                </object>`;
+        } else {
+            // Load other saved content into an iframe
+            let iframe = contentContainer.querySelector('iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('width', '100%');
+                iframe.setAttribute('height', '100%');
+                contentContainer.appendChild(iframe);
+            }
+            iframe.src = savedViewerContentUrl;
+        }
     }
 });
 
