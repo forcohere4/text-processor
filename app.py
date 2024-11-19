@@ -126,5 +126,10 @@ def serve_uploaded_file(filename):
 def serve_output(filename):
     return send_from_directory(app.config['OUTPUT_FOLDER'], filename)
 
+# Merge and Sort Tables
+@app.route('/merge-sort')
+def merge_sort():
+    return render_template('merge-sort.html')
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

@@ -80,7 +80,14 @@
                 </div>
 
                 <hr /> <!-- Line separator -->
-                
+
+            <!-- Merge-Sort Section -->
+            <div>
+                <a href="{{ url_for('merge_sort') }}" target="_blank" rel="noopener noreferrer" class="merge-sort-link">
+                    Merge and Sort Table
+                </a>
+            </div>          
+
             </div>
         </div>
 
@@ -89,13 +96,13 @@
                 <!-- <button type="button" id="default-table" onclick="defaultTable()">Default Table</button> -->
                 <button type="button" id="sort-tables" onclick="sortTables()">Sort Table</button>
                 <button type="button" id="clear-editor-top-button" onclick="defaultTable()">Reset Table</button>
-                <button type="button" id="clear-editor-top-button" onclick="importRawFile()">Import File</button>
                 <div class="dropdown">
-                    <button id="exportButton">Export</button>
+                    <button id="exportButton">Export/Import</button>
                     <div class="dropdown-content">
+                        <button onclick="importRawFile()">Import RAW File</button>
+                        <button onclick="exportRawFile()">Export RAW File</button>
                         <button onclick="exportToPDF()">Export Full PDF</button>
                         <button onclick="exportfilteredPDF()">Export Filtered PDF</button>
-                        <button onclick="exportRawFile()">Export RAW File</button>
                     </div>
                 </div>
             </div>            

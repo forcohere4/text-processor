@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Merge and Sort</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='merge-sort.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu -->
+    <div class="hamburger-menu" onclick="toggleSidebar()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <!-- Heading -->
+        <h2>Options</h2>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <label for="file-input">Upload .tpsrc Files:</label>
+            <input type="file" id="file-input" multiple accept=".tpsrc">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="merge-sort-btn">Merge and Sort Tables</button>
+            <button id="export-pdf-btn">Export to PDF</button>
+        </div>
+
+        <hr />
+
+        <!-- Author Section -->
+        <div class="author-section">
+            <label for="author-name">Author Name:</label>
+            <input type="text" id="author-name" placeholder="Enter author's name">
+        </div>
+
+        <hr />
+
+        <!-- PDF Orientation Section -->
+        <div class="orientation-section">
+            <label class="section-header">PDF Orientation:</label>
+            <div class="orientation-options">
+                <input type="radio" id="portrait" name="pdf-view" value="portrait">
+                <label for="portrait">Portrait</label>
+
+                <input type="radio" id="landscape" name="pdf-view" value="landscape" checked>
+                <label for="landscape">Landscape</label>
+            </div>
+        </div>
+    
+        <hr />
+
+    </div>
+
+    <!-- Main Content -->
+    <h2>Merge and Sort Tables from .tpsrc Files</h2>
+    <div id="editor">
+        <!-- Merged and sorted table will appear here -->
+    </div>
+
+    <script src="{{ url_for('static', filename='merge-sort.js') }}"></script>
+</body>
+</html>
