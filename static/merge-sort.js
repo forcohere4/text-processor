@@ -202,3 +202,52 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+async function exportRawFile() {
+    // Ensure a table exists within the editor
+    const table = editor.querySelector('table');
+    if (!table) {
+        alert("No table found to export.");
+        return;
+    }
+
+    try {
+        // Create a timestamp for the file name in IST
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+        const istDate = new Date(now.getTime() + istOffset);
+        const timestamp = istDate.toISOString()
+            .replace("T", "-") // Replace 'T' with '-'
+            .replace(/[:.]/g, "-") // Replace ':' and '.' with '-'
+            .slice(0, 19); // Keep only the YYYY-MM-DD-HH-MM-SS part
+
+        // Create a Blob containing the entire editor innerHTML to preserve all original classes and structure
+        const blob = new Blob([editor.innerHTML], { type: "text/html" });
+
+        // Generate a temporary URL for the Blob
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a temporary link to download the file
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `RAW-${timestamp}.tpsrc`; // Use custom extension
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up the temporary URL and link
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Error while exporting raw file:", error);
+    }
+}
+
+// Add event listener to the export button
+document.addEventListener("DOMContentLoaded", () => {
+    const exportRawBtn = document.getElementById("export-raw-btn"); // Assume you've added this button to your HTML
+    if (exportRawBtn) {
+        exportRawBtn.addEventListener("click", exportRawFile);
+    } else {
+        console.warn("Export Raw button not found in the DOM.");
+    }
+});
