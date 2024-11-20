@@ -93,9 +93,13 @@
 
         <div class="editor">
             <div class="editor-buttons">
-                <!-- <button type="button" id="default-table" onclick="defaultTable()">Default Table</button> -->
-                <button type="button" id="sort-tables" onclick="sortTables()">Sort Table</button>
-                <button type="button" id="clear-editor-top-button" onclick="defaultTable()">Reset Table</button>
+                <div class="dropdown">
+                    <button id="tableActions">Table Actions</button>
+                    <div class="dropdown-content">
+                        <button onclick="sortTables()">Sort Table</button>
+                        <button onclick="defaultTable()">Reset Table</button>
+                    </div>
+                </div>
                 <div class="dropdown">
                     <button id="exportButton">Export/Import</button>
                     <div class="dropdown-content">
