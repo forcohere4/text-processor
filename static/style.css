@@ -30,6 +30,8 @@ html, body {
 
 .editor {
     background-color: #ffffff; /* Optional styling for the viewer */
+    overflow-x: scroll; /* Horizontal Scrolling for the viewer */
+    overflow-y: hidden;
 }
 
 /* Hamburger Menu - keep your existing styles but update z-index */
