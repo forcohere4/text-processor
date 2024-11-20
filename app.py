@@ -22,16 +22,6 @@ ALLOWED_EXTENSIONS = {'docx', 'doc', 'pdf'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def pdf_to_docx_text_extraction(pdf_path, docx_path):
-    # Initialize a new DOCX document
-    doc = Document()
-    with fitz.open(pdf_path) as pdf:
-        for page_num, page in enumerate(pdf):
-            text = page.get_text("text")  # Extract searchable text
-            if text.strip():  # Ensure there's text to add
-                doc.add_paragraph(f"Page {page_num + 1}\n{text}")
-    doc.save(docx_path)
-
 @app.route('/')
 def index():
     return render_template('index.html')
