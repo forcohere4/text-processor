@@ -173,6 +173,10 @@ async function generatePDF(htmlContent, orientation = 'portrait', author = '', i
         await applyTableStyles(page, orientation);
         await wrapContent(page);
 
+        await page.evaluate(() => {
+            document.title = 'Text Processor Export';
+        });
+
         const timestamp = getISTTimestamp();
 
         const pdfOptions = {

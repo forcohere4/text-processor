@@ -1,7 +1,6 @@
 # Use the official Node.js LTS version
-FROM node:18-slim
+FROM node:20-slim
 
-# Install necessary dependencies
 # Install necessary dependencies
 RUN apt-get update && apt-get install -y \
   dumb-init \
@@ -19,6 +18,7 @@ RUN apt-get update && apt-get install -y \
   ca-certificates \
   fonts-liberation \
   fonts-indic \
+  fonts-noto \
   gconf-service \
   libappindicator1 \
   libasound2 \
