@@ -407,6 +407,21 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
 		editor.setData(savedContent);
 	}
 
+	// Intercept paste events for both Ctrl+V and Ctrl+Shift+V
+	editor.editing.view.document.on('keydown', (event, data) => {
+		if (data.keyCode === 86 && data.ctrlKey) { // Detect Ctrl+V or Ctrl+Shift+V
+			data.preventDefault(); // Prevent the default paste
+			
+			// Use the correct paste method
+			navigator.clipboard.readText().then(text => {
+				editor.model.change(writer => {
+					const insertPosition = editor.model.document.selection.getFirstPosition();
+					writer.insertText(text, insertPosition);
+				});
+			});
+		}
+	});
+
     // Append toolbar and menu bar to the document
     document.querySelector('#editor-toolbar').appendChild(editor.ui.view.toolbar.element);
     document.querySelector('#editor-menu-bar').appendChild(editor.ui.view.menuBarView.element);
