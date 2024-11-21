@@ -60,9 +60,19 @@ def upload():
         if ocr_enabled:
             try:
                 # Perform OCR on the PDF
-                ocrmypdf.ocr(file_path, file_path, language=languages, force_ocr=True, output_type='pdf')
-            except Exception as ocr_error:
-                return jsonify({"error": f"Error making PDF searchable: {str(ocr_error)}"}), 500
+                ocrmypdf_command = [
+                'ocrmypdf',
+                '--language', languages,  # Pass the selected languages
+                '--force-ocr',           # Force OCR even if the PDF is already searchable
+                '--output-type', 'pdf',  # Ensure output is a PDF
+                file_path,               # Input file
+                file_path                # Output file (overwrite)
+                ]
+
+                # Run the OCRmyPDF subprocess
+                subprocess.run(ocrmypdf_command, check=True)
+            except subprocess.CalledProcessError as e:
+                return jsonify({"error": f"Error making PDF searchable: {str(e)}"}), 500
 
         # Return the PDF URL for direct rendering
         return jsonify({"html_url": f"/uploads/{filename}"})
