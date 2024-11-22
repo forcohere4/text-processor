@@ -1,6 +1,6 @@
 // Initialize Split.js for the viewer and editor with a draggable divider
 Split(['.viewer', '.editor'], {
-    sizes: [37.5, 62.5],  // Initial split size percentages
+    sizes: [42, 58],  // Initial split size percentages
     minSize: 200,     // Minimum size of each pane
     gutterSize: 5,    // Size of the draggable divider
     cursor: 'col-resize'  // Cursor style when hovering over the divider

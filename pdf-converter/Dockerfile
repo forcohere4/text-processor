@@ -3,43 +3,35 @@ FROM node:20-slim
 
 # Install necessary dependencies
 RUN apt-get update && apt-get install -y \
-    dumb-init \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxcursor1 \
-    libxdamage1 \
-    libxext6 \
-    libxfixes3 \
-    libxi6 \
-    libxrandr2 \
-    libxrender1 \
-    libxtst6 \
-    ca-certificates \
-    gconf-service \
-    libappindicator1 \
-    libasound2 \
-    libatk1.0-0 \
-    libatspi2.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libgbm1 \
-    libgtk-3-0 \
-    libnspr4 \
-    libpangocairo-1.0-0 \
-    libx11-6 \
-    xdg-utils \
-    fontconfig \
-    --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create fonts directory and copy fonts
-RUN mkdir -p /usr/share/fonts/truetype/custom
-COPY fonts/mangal.ttf /usr/share/fonts/truetype/custom/
-COPY fonts/shruti.ttf /usr/share/fonts/truetype/custom/
-
-# Update font cache
-RUN fc-cache -f -v
+  dumb-init \
+  libnss3 \
+  libx11-xcb1 \
+  libxcomposite1 \
+  libxcursor1 \
+  libxdamage1 \
+  libxext6 \
+  libxfixes3 \
+  libxi6 \
+  libxrandr2 \
+  libxrender1 \
+  libxtst6 \
+  ca-certificates \
+  fonts-noto \
+  gconf-service \
+  libappindicator1 \
+  libasound2 \
+  libatk1.0-0 \
+  libatspi2.0-0 \
+  libcups2 \
+  libdbus-1-3 \
+  libgbm1 \
+  libgtk-3-0 \
+  libnspr4 \
+  libpangocairo-1.0-0 \
+  libx11-6 \
+  xdg-utils \
+  --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 
 # Create and set the working directory
 WORKDIR /usr/src/app
