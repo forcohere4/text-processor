@@ -4,6 +4,9 @@ from flask import Flask, request, render_template, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import ocrmypdf
 import requests
+import threading
+import time
+import json
 
 app = Flask(__name__)
 
@@ -11,16 +14,48 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
 
 app.config['UPLOAD_FOLDER'] = "uploads"
 app.config['OUTPUT_FOLDER'] = "outputs"
+app.config['TASK_STATUS_FOLDER'] = "task_status"  # New folder for task status
 
-# Ensure the upload and output folders exist
+# Ensure all required folders exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+os.makedirs(app.config['TASK_STATUS_FOLDER'], exist_ok=True)  # New folder
 
 # Allowed extensions for document upload
 ALLOWED_EXTENSIONS = {'docx', 'doc', 'pdf'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_task_status(task_id, status, message=""):
+    """Save task status to a JSON file"""
+    status_file = os.path.join(app.config['TASK_STATUS_FOLDER'], f"{task_id}.json")
+    with open(status_file, 'w') as f:
+        json.dump({
+            'status': status,
+            'message': message,
+            'timestamp': time.time()
+        }, f)
+
+def process_ocr(file_path, languages, task_id):
+    """Background OCR processing function"""
+    try:
+        save_task_status(task_id, "processing", "OCR processing in progress...")
+        
+        ocrmypdf_command = [
+            'ocrmypdf',
+            '--language', languages,
+            '--force-ocr',
+            '--output-type', 'pdf',
+            file_path,
+            file_path
+        ]
+        
+        subprocess.run(ocrmypdf_command, check=True)
+        save_task_status(task_id, "completed", "OCR processing completed successfully")
+        
+    except subprocess.CalledProcessError as e:
+        save_task_status(task_id, "failed", f"OCR processing failed: {str(e)}")
 
 @app.route('/')
 def index():
@@ -58,23 +93,25 @@ def upload():
     # If the file is a PDF, handle it directly
     if filename.endswith('.pdf'):
         if ocr_enabled:
-            try:
-                # Perform OCR on the PDF
-                ocrmypdf_command = [
-                'ocrmypdf',
-                '--language', languages,  # Pass the selected languages
-                '--force-ocr',           # Force OCR even if the PDF is already searchable
-                '--output-type', 'pdf',  # Ensure output is a PDF
-                file_path,               # Input file
-                file_path                # Output file (overwrite)
-                ]
+            # Generate task ID for async processing
+            task_id = f"task_{int(time.time())}"
+            
+            # Start OCR processing in background
+            thread = threading.Thread(
+                target=process_ocr,
+                args=(file_path, languages, task_id)
+            )
+            thread.start()
 
-                # Run the OCRmyPDF subprocess
-                subprocess.run(ocrmypdf_command, check=True)
-            except subprocess.CalledProcessError as e:
-                return jsonify({"error": f"Error making PDF searchable: {str(e)}"}), 500
+            # Return immediately with task ID and file URL
+            return jsonify({
+                "task_id": task_id,
+                "status": "processing",
+                "message": "OCR processing started",
+                "html_url": f"/uploads/{filename}"
+            })
 
-        # Return the PDF URL for direct rendering
+        # Return the PDF URL for direct rendering if OCR not needed
         return jsonify({"html_url": f"/uploads/{filename}"})
 
     # Convert .doc and .docx files to .html
@@ -115,6 +152,18 @@ def upload():
     # If file format is not supported for conversion
     return jsonify({"error": "Unsupported file format for processing."}), 400
 
+@app.route('/task-status/<task_id>')
+def task_status(task_id):
+    """Check the status of an OCR task"""
+    status_file = os.path.join(app.config['TASK_STATUS_FOLDER'], f"{task_id}.json")
+    
+    if not os.path.exists(status_file):
+        return jsonify({"error": "Task not found"}), 404
+        
+    with open(status_file, 'r') as f:
+        status = json.load(f)
+    
+    return jsonify(status)
 
 # Serve the uploaded PDFs directly from the upload folder
 @app.route('/uploads/<filename>')

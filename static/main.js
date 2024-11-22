@@ -58,45 +58,89 @@ document.getElementById('upload-button').addEventListener('click', async () => {
                 viewer.appendChild(contentContainer);
             }
 
-            if (result.html_url.endsWith('.pdf')) {
-                // Render PDF in the content container
-                contentContainer.innerHTML = `
-                    <object class="pdf" 
-                            data="${result.html_url}" 
-                            type="application/pdf" 
-                            width="100%" 
-                            height="100%">
-                        <p>The requested URL was not found on the server. Please upload the file again.</p>
-                    </object>`;
+            // Handle async OCR processing for PDFs
+            if (result.task_id && result.html_url.endsWith('.pdf')) {
+                // Keep spinner visible for OCR processing
+                const checkTaskStatus = async () => {
+                    try {
+                        const statusResponse = await fetch(`/task-status/${result.task_id}`);
+                        const statusData = await statusResponse.json();
+
+                        if (statusData.status === "processing") {
+                            // Check again in 2 seconds
+                            setTimeout(checkTaskStatus, 2000);
+                        } else if (statusData.status === "completed") {
+                            // Hide spinner after completion
+                            spinner.style.display = 'none';
+                            
+                            // Now render the OCR'd PDF
+                            contentContainer.innerHTML = `
+                                <object class="pdf" 
+                                        data="${result.html_url}" 
+                                        type="application/pdf" 
+                                        width="100%" 
+                                        height="100%">
+                                    <p>The requested URL was not found on the server. Please upload the file again.</p>
+                                </object>`;
+                            
+                            // Save the viewer content URL to local storage
+                            localStorage.setItem('viewerContentUrl', result.html_url);
+                        } else if (statusData.status === "failed") {
+                            spinner.style.display = 'none';
+                            alert("OCR processing failed: " + statusData.message);
+                        }
+                    } catch (error) {
+                        console.error("Error checking OCR status:", error);
+                        spinner.style.display = 'none';
+                        alert("Error checking OCR status. Please refresh the page.");
+                    }
+                };
+
+                // Start checking status
+                checkTaskStatus();
             } else {
-                // Render other files (e.g., DOC or DOCX) in an iframe
-                let iframe = contentContainer.querySelector('iframe');
-                if (!iframe) {
-                    iframe = document.createElement('iframe');
-                    iframe.setAttribute('frameborder', '0');
-                    iframe.setAttribute('width', '100%');
-                    iframe.setAttribute('height', '100%');
-                    contentContainer.appendChild(iframe);
+                // Handle non-OCR PDFs and other file types immediately
+                if (result.html_url.endsWith('.pdf')) {
+                    contentContainer.innerHTML = `
+                        <object class="pdf" 
+                                data="${result.html_url}" 
+                                type="application/pdf" 
+                                width="100%" 
+                                height="100%">
+                            <p>The requested URL was not found on the server. Please upload the file again.</p>
+                        </object>`;
+                } else {
+                    // Render other files (e.g., DOC or DOCX) in an iframe
+                    let iframe = contentContainer.querySelector('iframe');
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.setAttribute('frameborder', '0');
+                        iframe.setAttribute('width', '100%');
+                        iframe.setAttribute('height', '100%');
+                        contentContainer.appendChild(iframe);
+                    }
+                    iframe.src = result.html_url;
                 }
-                iframe.src = result.html_url;
-            }
 
-            // Force a viewer refresh when .doc/.docx is uploaded
-            if (result.html_url.endsWith('.html')) {
-                location.reload(); // Simple page reload to refresh the viewer
-            }
+                // Save the viewer content URL to local storage
+                localStorage.setItem('viewerContentUrl', result.html_url);
+                
+                // Hide spinner for non-OCR processing
+                spinner.style.display = 'none';
 
-            // Save the viewer content URL to local storage
-            localStorage.setItem('viewerContentUrl', result.html_url);
+                // Force a viewer refresh when .doc/.docx is uploaded
+                if (result.html_url.endsWith('.html')) {
+                    location.reload();
+                }
+            }
         } else {
+            spinner.style.display = 'none';
             alert(result.error || "Failed to upload and process the document.");
         }
     } catch (error) {
         console.error("Error uploading file:", error);
-        alert("An error occurred while uploading the file. Please try again.");
-    } finally {
-        // Hide spinner after completion
         spinner.style.display = 'none';
+        alert("An error occurred while uploading the file. Please try again.");
     }
 });
 

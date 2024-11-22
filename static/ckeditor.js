@@ -400,27 +400,29 @@ DecoupledEditor.create(document.querySelector('#editor'), editorConfig).then(edi
     // Store the created editor instance in a global variable
     window.editorInstance = editor;
 
+	// Add clipboard input listener
+	editor.editing.view.document.on('clipboardInput', (evt, data) => {
+		// Get plain text from clipboard
+		const plainText = data.dataTransfer.getData('text/plain')
+			.replace(/\r\n/g, '\n')  // Normalize line breaks
+			.replace(/\r/g, '\n');
+		
+		// Prevent the default paste behavior
+		evt.stop();
+
+		// Insert the plain text using the model API
+		editor.model.change(writer => {
+			const insertPosition = editor.model.document.selection.getFirstPosition();
+			writer.insertText(plainText, insertPosition);
+		});
+	});
+
     // Load saved content from local storage if available
 	const savedContent = localStorage.getItem('editorContent');
 	if (savedContent) {
 		// Set data directly in the editor to preserve CKEditor’s HTML structure
 		editor.setData(savedContent);
 	}
-
-	// Intercept paste events for both Ctrl+V and Ctrl+Shift+V
-	editor.editing.view.document.on('keydown', (event, data) => {
-		if (data.keyCode === 86 && data.ctrlKey) { // Detect Ctrl+V or Ctrl+Shift+V
-			data.preventDefault(); // Prevent the default paste
-			
-			// Use the correct paste method
-			navigator.clipboard.readText().then(text => {
-				editor.model.change(writer => {
-					const insertPosition = editor.model.document.selection.getFirstPosition();
-					writer.insertText(text, insertPosition);
-				});
-			});
-		}
-	});
 
     // Append toolbar and menu bar to the document
     document.querySelector('#editor-toolbar').appendChild(editor.ui.view.toolbar.element);
