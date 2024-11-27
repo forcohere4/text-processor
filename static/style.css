@@ -399,3 +399,53 @@ html, body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.editor-tabs {
+	display: flex;
+	align-items: center;
+	padding: 5px;
+	background-color: #f3f3f3;
+	border-bottom: 1px solid #ccc;
+	overflow-x: auto;
+	white-space: nowrap; 
+	box-sizing: border-box; 
+	position: relative; 
+}
+
+.tab {
+	padding: 5px 10px;
+	margin-right: 5px;
+	background-color: #ddd;
+	cursor: pointer;
+	border: 1px solid #bbb;
+	border-radius: 3px;
+	display: flex;
+	align-items: center;
+}
+
+.tab.active-tab {
+	background-color: #fff;
+	font-weight: bold;
+	border-bottom: none;
+}
+
+.tab .close-tab {
+	margin-left: 5px;
+	background: none;
+	border: none;
+	color: #900;
+	cursor: pointer;
+	font-size: 14px;
+    border-radius: 50%; /* Makes the background a circle */
+    padding: 5px; /* Adjusts clickable area */
+    transition: background-color 0.2s ease; /* Smooth hover effect */
+}
+
+.tab .close-tab:hover {
+    background-color: #ccc; /* Light gray background on hover */
+    color: #600; /* Darker color for the close icon on hover */
+}
+
+.tab-button{
+    cursor: pointer;
+}
