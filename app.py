@@ -116,21 +116,38 @@ def upload():
 
     # Convert .doc and .docx files to .html
     if filename.endswith('.doc') or filename.endswith('.docx'):
-        # Convert .doc to .docx if needed
+        # Convert .doc files to .html
         if filename.endswith('.doc'):
-            docx_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename.rsplit('.', 1)[0] + '.docx')
+            # Convert .doc to text first
+            txt_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename.rsplit('.', 1)[0] + '.txt')
             try:
                 convert_command = [
                     'libreoffice',
                     '--headless',
-                    '--convert-to', 'docx',
+                    '--convert-to', 'txt:Text',
                     '--outdir', app.config['UPLOAD_FOLDER'],
                     file_path
                 ]
                 subprocess.run(convert_command, check=True)
-                file_path = docx_file_path  # Update file_path to the converted .docx
             except subprocess.CalledProcessError as e:
-                return jsonify({"error": f"Error converting .doc to .docx: {str(e)}"}), 500
+                return jsonify({"error": f"Error converting .doc to text: {str(e)}"}), 500
+
+            # Update file_path to the converted .txt file
+            file_path = txt_file_path
+
+            # Convert text to .html
+            output_html = os.path.join(app.config['OUTPUT_FOLDER'], filename.rsplit('.', 1)[0] + '.html')
+            try:
+                convert_command = [
+                    'libreoffice',
+                    '--headless',
+                    '--convert-to', 'html',
+                    '--outdir', app.config['OUTPUT_FOLDER'],
+                    file_path
+                ]
+                subprocess.run(convert_command, check=True)
+            except subprocess.CalledProcessError as e:
+                return jsonify({"error": f"Error converting text to HTML: {str(e)}"}), 500
 
         # Convert .docx to .html
         output_html = os.path.join(app.config['OUTPUT_FOLDER'], filename.rsplit('.', 1)[0] + '.html')
